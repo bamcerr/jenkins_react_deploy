@@ -1,0 +1,23 @@
+FROM nginx:alpine
+
+USER root
+
+# OpenSSH 설치 (서버용)
+RUN apk add --no-cache openssh
+
+# SSH 호스트 키 생성 (sshd 실행 전에 키를 생성)
+RUN ssh-keygen -A
+
+# SSH 서버 설정
+RUN mkdir -p /root/.ssh && \
+    touch /root/.ssh/authorized_keys && \
+    chmod 700 /root/.ssh && \
+    chmod 600 /root/.ssh/authorized_keys
+
+RUN mkdir -p /var/www/nomflix/build && \
+    mkdir -p /var/www/nomflix/temp && \
+    mkdir -p /var/www/nomflix/backup
+
+EXPOSE 22 80
+
+CMD /usr/sbin/sshd && nginx -g 'daemon off;'

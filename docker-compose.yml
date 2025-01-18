@@ -1,0 +1,33 @@
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    container_name: jenkins1
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - ./jenkins_home:/var/jenkins_home
+      - ./jenkins:/var/jenkins_home/.ssh
+    networks:
+      - jenkins_network
+
+  nginx:
+    build: 
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: nginx1
+    ports:
+      - "80:80"
+      - "22:22"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./jenkins/.ssh/jenkins_rsa.pub:/root/.ssh/authorized_keys
+    networks:
+      - jenkins_network
+
+networks:
+  jenkins_network:
+    driver: bridge

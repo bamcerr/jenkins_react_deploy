@@ -1,0 +1,30 @@
+FROM jenkins/jenkins:lts
+
+# root 사용자로 설정
+USER root
+
+# 필요한 패키지 설치
+RUN apt-get update && \
+    apt-get install -y \
+    openssh-client \
+    curl \
+    gnupg2 \
+    lsb-release \
+    ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+# Node.js 최신 버전 설치
+RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g npm@latest  # npm 최신 버전 설치
+
+    # SSH 키 생성 및 권한 설정
+RUN mkdir -p /var/jenkins_home/.ssh && \
+    ssh-keygen -t rsa -b 4096 -f /var/jenkins_home/.ssh/id_rsa -N "" && \
+    chmod 700 /var/jenkins_home/.ssh && \
+    chmod 600 /var/jenkins_home/.ssh/id_rsa && \
+    chmod 644 /var/jenkins_home/.ssh/id_rsa.pub && \
+    chown -R jenkins:jenkins /var/jenkins_home/.ssh
+
+# Jenkins 사용자로 돌아가서 Jenkins 관련 작업 수행
+USER jenkins
